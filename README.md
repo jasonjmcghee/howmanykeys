@@ -8,6 +8,11 @@ Nothing ever leaves your computer.
 
 Run it, and it's always there for you :)
 
+# Demo
+
+https://github.com/user-attachments/assets/d422513e-bd7b-4305-80f1-04d7fe744a7f
+
+
 ## Issues
 
 Please log any issues. This was made in a very small portion of an evening.
