@@ -2,6 +2,12 @@
 
 Keep track of how many keys you press per day!
 
+Read the code - what you press isn't even being looked at.
+
+Nothing ever leaves your computer.
+
+Run it, and it's always there for you :)
+
 ---
 
 What it looks like normally:
