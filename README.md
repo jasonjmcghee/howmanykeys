@@ -12,7 +12,7 @@ Run it, and it's always there for you :)
 
 What it looks like normally:
 
-\/ this first one
+ __  \\/ this first one
 <div>
 <img width="645" alt="image" src="https://github.com/user-attachments/assets/7d85ef1d-fa7a-49ff-8019-8e47fbaba70d">
 </div>
