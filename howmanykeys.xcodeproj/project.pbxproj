@@ -7,19 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		966E9C102C48B24F00D6CC20 /* howmanykeysApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966E9C0F2C48B24F00D6CC20 /* howmanykeysApp.swift */; };
-		966E9C122C48B24F00D6CC20 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966E9C112C48B24F00D6CC20 /* ContentView.swift */; };
 		966E9C142C48B25100D6CC20 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 966E9C132C48B25100D6CC20 /* Assets.xcassets */; };
 		966E9C172C48B25100D6CC20 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 966E9C162C48B25100D6CC20 /* Preview Assets.xcassets */; };
+		966E9C212C48B2A200D6CC20 /* howmanykeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966E9C202C48B2A200D6CC20 /* howmanykeys.swift */; };
+		966E9C242C48D22400D6CC20 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966E9C232C48D22400D6CC20 /* HistoryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		966E9C0C2C48B24F00D6CC20 /* howmanykeys.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = howmanykeys.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		966E9C0F2C48B24F00D6CC20 /* howmanykeysApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = howmanykeysApp.swift; sourceTree = "<group>"; };
-		966E9C112C48B24F00D6CC20 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		966E9C132C48B25100D6CC20 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		966E9C162C48B25100D6CC20 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		966E9C182C48B25100D6CC20 /* howmanykeys.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = howmanykeys.entitlements; sourceTree = "<group>"; };
+		966E9C202C48B2A200D6CC20 /* howmanykeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = howmanykeys.swift; sourceTree = "<group>"; };
+		966E9C222C48B3A000D6CC20 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		966E9C232C48D22400D6CC20 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,11 +53,12 @@
 		966E9C0E2C48B24F00D6CC20 /* howmanykeys */ = {
 			isa = PBXGroup;
 			children = (
-				966E9C0F2C48B24F00D6CC20 /* howmanykeysApp.swift */,
-				966E9C112C48B24F00D6CC20 /* ContentView.swift */,
+				966E9C222C48B3A000D6CC20 /* Info.plist */,
 				966E9C132C48B25100D6CC20 /* Assets.xcassets */,
 				966E9C182C48B25100D6CC20 /* howmanykeys.entitlements */,
 				966E9C152C48B25100D6CC20 /* Preview Content */,
+				966E9C202C48B2A200D6CC20 /* howmanykeys.swift */,
+				966E9C232C48D22400D6CC20 /* HistoryView.swift */,
 			);
 			path = howmanykeys;
 			sourceTree = "<group>";
@@ -139,8 +141,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				966E9C122C48B24F00D6CC20 /* ContentView.swift in Sources */,
-				966E9C102C48B24F00D6CC20 /* howmanykeysApp.swift in Sources */,
+				966E9C212C48B2A200D6CC20 /* howmanykeys.swift in Sources */,
+				966E9C242C48D22400D6CC20 /* HistoryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,11 +281,14 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = howmanykeys/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = today.jason.howmanykeys;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -306,11 +311,14 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = howmanykeys/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = today.jason.howmanykeys;
 				PRODUCT_NAME = "$(TARGET_NAME)";
