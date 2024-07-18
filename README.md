@@ -8,6 +8,10 @@ Nothing ever leaves your computer.
 
 Run it, and it's always there for you :)
 
+## Issues
+
+Please log any issues. This was made in a very small portion of an evening.
+
 ---
 
 What it looks like normally:
