@@ -7,14 +7,16 @@ struct HistoryView: View {
     @State private var maxYear: Int?
     @Binding var statusYear: Int
     let currentDailyCount: Int
+    let logFileURL: URL?
     
     let testMode: Bool
     
-    init(testMode: Bool, statusYear: Binding<Int>, currentDailyCount: Int) {
+    init(testMode: Bool, statusYear: Binding<Int>, currentDailyCount: Int, logFileURL: URL?) {
         self.testMode = testMode
         self._currentYear = State(initialValue: Calendar.current.component(.year, from: Date()))
         self._statusYear = statusYear
         self.currentDailyCount = currentDailyCount
+        self.logFileURL = logFileURL
     }
     
     var body: some View {
@@ -53,8 +55,10 @@ struct HistoryView: View {
             historicalData = generateTestData()
         } else {
             // Load actual data for the current year
-            guard let logFileURL = (NSApplication.shared.delegate as? AppDelegate)?.getLogFileURL(),
-                  let contents = try? String(contentsOf: logFileURL) else {
+            guard let fileUrl = self.logFileURL else {
+                return
+            }
+            guard let contents = try? String(contentsOf: fileUrl) else {
                 return
             }
             

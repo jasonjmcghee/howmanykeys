@@ -1,5 +1,6 @@
 import SwiftUI
 import Cocoa
+import os
 
 @main
 struct KeystrokeCounterApp: App {
@@ -13,10 +14,11 @@ struct KeystrokeCounterApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    private let logger = Logger()
     var statusItem: NSStatusItem?
     var eventMonitor: Any?
     var totalKeyCount: Int = UserDefaults.standard.integer(forKey: "totalKeyCount")
-    var dailyKeyCount: Int = UserDefaults.standard.integer(forKey: "dailyKeyCount")
+    var dailyKeyCount: Int = 0
     var isShowingTotal: Bool = UserDefaults.standard.bool(forKey: "isShowingTotal")
     let calendar = Calendar.current
     var popover: NSPopover?
@@ -37,7 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func loadSavedCounts() {
         totalKeyCount = UserDefaults.standard.integer(forKey: "totalKeyCount")
-        dailyKeyCount = UserDefaults.standard.integer(forKey: "dailyKeyCount")
+        dailyKeyCount = 0
         isShowingTotal = UserDefaults.standard.bool(forKey: "isShowingTotal")
     }
     
@@ -64,7 +66,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func setupEventMonitor() {
-        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown]) { [weak self] _ in
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyUp]) { [weak self] _ in
             self?.incrementCount()
         }
     }
@@ -109,7 +111,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let lastResetDate = UserDefaults.standard.object(forKey: "lastResetDate") as? Date ?? Date.distantPast
         let now = Date()
         
-        if !calendar.isDate(lastResetDate, inSameDayAs: now) {
+        if calendar.isDate(lastResetDate, inSameDayAs: now) {
+            // Same day, update today's count
+            logDailyCount(date: now, count: dailyKeyCount)
+        } else {
             // Log the previous day's count
             logDailyCount(date: lastResetDate, count: dailyKeyCount)
             
@@ -119,31 +124,74 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Reset for the new day
             dailyKeyCount = 0
             UserDefaults.standard.set(dailyKeyCount, forKey: "dailyKeyCount")
-            UserDefaults.standard.set(now, forKey: "lastResetDate")
         }
+        
+        // Update the last reset date
+        UserDefaults.standard.set(now, forKey: "lastResetDate")
     }
-    
+
     func logDailyCount(date: Date, count: Int) {
         let dateString = dateFormatter.string(from: date)
         let logEntry = "\(dateString),\(count)\n"
         
-        if let logFileURL = getLogFileURL(),
-           let data = logEntry.data(using: .utf8) {
-            if FileManager.default.fileExists(atPath: logFileURL.path) {
-                do {
-                    let fileHandle = try FileHandle(forWritingTo: logFileURL)
+        if let logFileURL = getLogFileURL() {
+            do {
+                let fileManager = FileManager.default
+                if fileManager.fileExists(atPath: logFileURL.path) {
+                    guard let fileHandle = FileHandle(forUpdatingAtPath: logFileURL.path) else {
+                        return
+                    }
+                    defer { fileHandle.closeFile() }
+                    
+                    // Seek to the end
                     fileHandle.seekToEndOfFile()
-                    fileHandle.write(data)
-                    fileHandle.closeFile()
-                } catch {
-                    print("Error writing to log file: \(error)")
+                    
+                    // Get the current file size
+                    let fileSize = fileHandle.offsetInFile
+                    
+                    var offset = fileSize - 1
+                    var found = false
+                    
+                    if fileSize > 0 {
+                        // Seek backwards to find the last newline
+                        while offset > 0 {
+                            fileHandle.seek(toFileOffset: offset)
+                            if fileHandle.readData(ofLength: 1).first == 0x0A && offset < fileSize - 1 { // newline character
+                                break
+                            }
+                            offset -= 1
+                        }
+                        
+                        if (offset > 0 && offset < fileSize - 1) {
+                            found = true
+                        }
+                    }
+                        
+                    if found {
+                        // Read the last line
+                        let lastLine = fileHandle.readDataToEndOfFile()
+                        
+                        if let lastLineString = String(data: lastLine, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                           lastLineString.hasPrefix(dateString) {
+                            // Update the last line
+                            fileHandle.seek(toFileOffset: offset + 1) // +1 to write after the newline
+                            fileHandle.write(logEntry.data(using: .utf8)!)
+                            fileHandle.truncateFile(atOffset: fileHandle.offsetInFile)
+                        } else {
+                            // Append new entry
+                            fileHandle.seekToEndOfFile()
+                            fileHandle.write(logEntry.data(using: .utf8)!)
+                        }
+                    } else {
+                        // File is empty, just write the new entry
+                        fileHandle.write(logEntry.data(using: .utf8)!)
+                    }
+                } else {
+                    // Create new file with the entry
+                    try logEntry.write(to: logFileURL, atomically: true, encoding: .utf8)
                 }
-            } else {
-                do {
-                    try data.write(to: logFileURL)
-                } catch {
-                    print("Error creating log file: \(error)")
-                }
+            } catch {
+                print("Error writing to log file: \(error)")
             }
         }
     }
@@ -161,10 +209,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func getLogFileURL() -> URL? {
-        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            return nil
+        return getSaveDir()?.appendingPathComponent("log.csv")
+    }
+    
+    func getSaveDir() -> URL? {
+        let fileManager = FileManager.default
+        
+        // Get the base directory URL
+        if let baseDirectory = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            
+            // Create a subdirectory URL within the base directory
+            let subdirectory = baseDirectory.appendingPathComponent("today.jason.howmanykeys")
+            
+            // Check if the subdirectory exists
+            var isDirectory: ObjCBool = false
+            if fileManager.fileExists(atPath: subdirectory.path, isDirectory: &isDirectory) {
+                if isDirectory.boolValue {
+                    // Subdirectory already exists
+                    return subdirectory
+                }
+            }
+            
+            // Create the subdirectory if it doesn't exist
+            do {
+                try fileManager.createDirectory(at: subdirectory, withIntermediateDirectories: true, attributes: nil)
+                return subdirectory
+            } catch {
+                logger.error("Error creating subdirectory: \(error)")
+            }
         }
-        return documentsDirectory.appendingPathComponent("keystroke_log.csv")
+        
+        return nil
+    }
+    
+    func applicationWillTerminate() {
+        checkAndResetDailyCount()
     }
     
     func setupPopover() {
@@ -172,12 +251,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         popover?.contentSize = NSSize(width: 700, height: 104)
         popover?.behavior = .transient
         popover?.contentViewController = NSHostingController(rootView:
-            HistoryView(testMode: testMode,
-                        statusYear: Binding(
-                            get: { self.currentYear },
-                            set: { self.currentYear = $0 }
-                        ),
-                        currentDailyCount: self.dailyKeyCount)  // Add this line
+            HistoryView(
+                testMode: testMode,
+                statusYear: Binding(
+                    get: { self.currentYear },
+                    set: { self.currentYear = $0 }
+                ),
+                currentDailyCount: self.dailyKeyCount,
+                logFileURL: getLogFileURL()
+           )
         )
         popover?.delegate = self
     }
@@ -199,6 +281,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter
     }()
+    
+    func applicationWillTerminate(_ notification: Notification) {
+        applicationWillTerminate()
+    }
 }
 
 extension AppDelegate: NSPopoverDelegate {
