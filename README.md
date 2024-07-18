@@ -1,6 +1,6 @@
 # howmanykeys
 
-Keep track of how many keys you press per day!
+Keep track of how many keys you press in real-time, per day, and all time!
 
 Read the code - what you press isn't even being looked at.
 
